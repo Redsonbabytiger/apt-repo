@@ -1,0 +1,13 @@
+Package: cros-minecraft
+Version: 1.1
+Architecture: all
+Maintainer: Brigham Johns <brighamjohns@gmail.com>
+Filename: pool/main/c/cros-minecraft_1.1_all.deb
+Size: 2608
+MD5sum: 06f692eb7996ef5d55ca336f0a0cda71
+SHA1: 440b33021eef77c08d2214bcb6967c0419389774
+SHA256: 0cc96b0d7dc042aa2ba71ee4945421acbf96f59c4e298941536751a103606943
+Section: utils
+Priority: optional
+Description: Automatically download and configure packages/files to play Minecraft on a Chromebook with Crostini enabled. This script helps users install required tools, optional CrOS packages, and Minecraft-related files interactively.
+

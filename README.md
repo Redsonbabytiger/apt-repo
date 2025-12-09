@@ -1,4 +1,4 @@
-# RedsonBabyTiger APT Repository
+# Redsonbabytiger APT Repository
 
 Welcome to my custom APT repository!  
 This repo hosts automatically updated `.deb` packages from my GitHub projects.

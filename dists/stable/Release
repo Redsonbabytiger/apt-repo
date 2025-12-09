@@ -1,12 +1,12 @@
-Origin: RedsonBabyTiger
-Label: RedsonBabyTiger APT Repo
+Origin: Redsonbabytiger
+Label: Redsonbabytiger APT Repo
 Suite: stable
 Codename: stable
 Architectures: amd64
 Components: main
-Date: Tue, 09 Dec 2025 05:13:02 +0000
+Date: Tue, 09 Dec 2025 18:15:47 +0000
 
 SHA256:
- 2a33bbd2cd03c283da3ea3f66a3e026b6999441f2af1381946d3c2d8bca6219c 172 Release
+ 0da03d6eb6630b6bdff4ec34644f4fdfeb76da8b7c8aab2c11c8617d90d61c25 172 Release
  961d1c18bd88770c57e3098a9acee348fc76d95af9aa5a2015a8931b31d5ed34 1137 main/binary-amd64/Packages
- 19567535a8893a498f54f8420c33a4d13fdd190349e0699b56c87b17cdf62847 687 main/binary-amd64/Packages.gz
+ 3ee59e5d26c90fe784953b5ab93c57f1d2b30ffcdc998e8bda1d8fce64201f57 687 main/binary-amd64/Packages.gz

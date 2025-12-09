@@ -1,0 +1,7 @@
+Origin: redsonbabytiger
+Label: redsonbabytiger
+Suite: stable
+Codename: stable
+Architectures: amd64
+Components: main
+Description: Custom APT repo

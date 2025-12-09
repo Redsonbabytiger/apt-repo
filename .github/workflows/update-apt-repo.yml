@@ -2,9 +2,11 @@ name: Update APT Repository
 
 on:
   workflow_dispatch:
+  repository_dispatch:
+    types: [release-update]
   schedule:
-    - cron: "0 * * * *" # runs every hour
-
+    - cron: "0 */6 * * *"   # fallback: run every 6 hours
+    
 jobs:
   update-apt-repo:
     runs-on: ubuntu-latest

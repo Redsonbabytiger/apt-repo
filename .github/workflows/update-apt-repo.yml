@@ -1,0 +1,124 @@
+name: Update APT Repository
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 * * * *" # runs every hour
+
+jobs:
+  update-apt-repo:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout apt-repo repository
+        uses: actions/checkout@v4
+
+      - name: Install required tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y dpkg-dev tree
+
+      - name: Display current directory structure (before)
+        run: tree -a || true
+
+      - name: Clear old repo contents
+        run: |
+          echo "Cleaning old APT repo structure..."
+          rm -rf pool dists
+          mkdir -p pool
+          mkdir -p dists/stable/main/binary-amd64
+
+      - name: Fetch latest .deb releases from RedsonBabyTiger repos
+        run: |
+          echo "Fetching list of repositories..."
+          repos=$(curl -s https://api.github.com/users/Redsonbabytiger/repos | jq -r '.[].name')
+
+          echo "Repositories found:"
+          echo "$repos"
+
+          echo "Downloading latest .deb assets..."
+          for repo in $repos; do
+            echo "Checking repo: $repo"
+            release_url="https://api.github.com/repos/Redsonbabytiger/$repo/releases/latest"
+
+            # Check if repo has a release
+            response=$(curl -s $release_url)
+            if echo "$response" | jq -e '.assets' >/dev/null 2>&1; then
+              deb_urls=$(echo "$response" | jq -r '.assets[] | select(.name | endswith(".deb")) | .browser_download_url')
+
+              if [ -n "$deb_urls" ]; then
+                echo "  Found DEB assets:"
+                echo "$deb_urls"
+                for url in $deb_urls; do
+                  echo "  Downloading: $url"
+                  curl -L "$url" -o "pool/$(basename $url)"
+                done
+              else
+                echo "  No DEB assets found."
+              fi
+            else
+              echo "  No releases for $repo."
+            fi
+          done
+
+      - name: Display pool contents
+        run: |
+          echo "Pool directory after downloads:"
+          ls -lh pool || true
+
+      - name: Build Packages + Packages.gz
+        run: |
+          echo "Generating Packages index..."
+          dpkg-scanpackages pool > dists/stable/main/binary-amd64/Packages
+
+          echo "Compressing Packages.gz..."
+          gzip -kf dists/stable/main/binary-amd64/Packages
+
+          echo "Packages generated:"
+          ls -lh dists/stable/main/binary-amd64/
+
+      - name: Generate Release file (with proper hashes)
+        run: |
+          echo "Building Release file with SHA256 hashes..."
+          RELEASE_PATH="dists/stable/Release"
+
+          {
+            echo "Origin: RedsonBabyTiger"
+            echo "Label: RedsonBabyTiger APT Repo"
+            echo "Suite: stable"
+            echo "Codename: stable"
+            echo "Architectures: amd64"
+            echo "Components: main"
+            echo "Date: $(date -Ru)"
+            echo
+            echo "SHA256:"
+          } > "$RELEASE_PATH"
+
+          # Add SHA256 hashes (full Debian style)
+          find dists/stable -type f -print0 | while IFS= read -r -d '' file; do
+            relpath="${file#dists/stable/}"
+            size=$(stat -c%s "$file")
+            hash=$(sha256sum "$file" | awk '{print $1}')
+            printf " %s %d %s\n" "$hash" "$size" "$relpath" >> "$RELEASE_PATH"
+          done
+
+          echo "Release file generated:"
+          cat "$RELEASE_PATH"
+
+      - name: Display directory structure (after)
+        run: tree -a || true
+
+      - name: Commit & Push Changes
+        run: |
+          echo "Preparing git commit..."
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+            exit 0
+          fi
+
+          git commit -m "Auto-update APT repo ($(date -u +'%Y-%m-%d %H:%M:%S'))"
+          git push

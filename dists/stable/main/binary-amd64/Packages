@@ -2,7 +2,7 @@ Package: cros-minecraft
 Version: 1.1
 Architecture: all
 Maintainer: Brigham Johns <brighamjohns@gmail.com>
-Filename: pool/main/cros-minecraft_1.1_all.deb
+Filename: ../../pool/main/cros-minecraft_1.1_all.deb
 Size: 2608
 MD5sum: 06f692eb7996ef5d55ca336f0a0cda71
 SHA1: 440b33021eef77c08d2214bcb6967c0419389774
@@ -16,7 +16,7 @@ Version: 1.2
 Architecture: amd64
 Maintainer: Brigham Johns brighamjohns@gmail.com
 Depends: yad, gnome-terminal, xdg-utils
-Filename: pool/main/launcherhub_1.2_amd64.deb
+Filename: ../../pool/main/launcherhub_1.2_amd64.deb
 Size: 8578
 MD5sum: ef9bc484e23a00103fa292de74ff295d
 SHA1: 1129c01da7d59b73ff6b0d2a715e7ea71dde211d

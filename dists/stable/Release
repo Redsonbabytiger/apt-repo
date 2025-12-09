@@ -1,7 +1,17 @@
-Origin: redsonbabytiger
-Label: redsonbabytiger
-Suite: stable
-Codename: stable
-Architectures: amd64
-Components: main
-Description: Custom APT repo
+Date: Tue, 09 Dec 2025 04:00:13 +0000
+MD5Sum:
+ c3b2eeadee96bfc59caeb79973e9d322               38 Release
+ a9e426494760a025afd28e6ececb3e45             1167 main/binary-amd64/Packages
+ 8708b2ef491e712e79361983d0c17830              699 main/binary-amd64/Packages.gz
+SHA1:
+ c7ed6bfd0cc503b683767e6601628f0c72594ccd               38 Release
+ 13476c394c3e7501e785131d89cf19d3d23294f1             1167 main/binary-amd64/Packages
+ f13e1e7bf63d930a49a869fd55cb8e7299156721              699 main/binary-amd64/Packages.gz
+SHA256:
+ 8c482ca623ff204a462ef8a5c4a95e136a66b56e71cd3d9d667454adb67f70c1               38 Release
+ f25b2fc5ae55adadcead452e39fe8e2ba9aedf5462cfc0a2c17dccc990ef892f             1167 main/binary-amd64/Packages
+ d7b49be075946c6e6f0f951b4561737fc6538e98341020a8cf03a35e933c8f17              699 main/binary-amd64/Packages.gz
+SHA512:
+ 58036f8e2d803dff7c8180f180d9fee66c505a35da090e882d6976db23d2351cadf0150b4bced6a1b7419e723c5e3ca623e202f7b9a262cb333a598653299203               38 Release
+ c93e0ecfd0255153748e6f426edcede780ed98e3571c64400d3fbec8ef3219c6fcb1b92dc7268ea7a70796a8e68e87613ccbf4c7dc722974a9b554f5dde2926e             1167 main/binary-amd64/Packages
+ 2b609bd9fa4a34ebc56e819df7150b5eb33985655b37255f707d002216f2ad7d8b1900c6358ee7e6cbb8511e8b0972f9d3d7835b878d0e643ac314fdc771cb9a              699 main/binary-amd64/Packages.gz

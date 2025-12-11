@@ -33,6 +33,18 @@ jobs:
           mkdir -p pool
           mkdir -p dists/stable/main/binary-amd64
 
+      # -----------------------------------------
+      # NEW STEP: Copy Additional packages/*.deb
+      # -----------------------------------------
+      - name: Copy additional local .deb packages into pool
+        run: |
+          echo "Copying manually added .deb packages..."
+          if [ -d "Additional packages" ]; then
+            find "Additional packages" -type f -name "*.deb" -print -exec cp {} pool/ \;
+          else
+            echo "No 'Additional packages' directory found."
+          fi
+
       - name: Fetch latest .deb releases from Redsonbabytiger repos
         run: |
           echo "Fetching list of repositories..."

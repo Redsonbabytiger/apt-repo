@@ -4,6 +4,9 @@ on:
   workflow_dispatch:
   repository_dispatch:
     types: [release-update]
+  push:
+    paths:
+      - "pool/**"
   schedule:
     - cron: "0 */6 * * *"   # fallback: run every 6 hours
     

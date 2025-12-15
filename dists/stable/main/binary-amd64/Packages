@@ -1,15 +1,18 @@
 Package: cros-minecraft
-Version: 1.1
+Version: 2.0.0
 Architecture: all
-Maintainer: Brigham Johns <brighamjohns@gmail.com>
-Filename: pool/cros-minecraft.deb
-Size: 2608
-MD5sum: 06f692eb7996ef5d55ca336f0a0cda71
-SHA1: 440b33021eef77c08d2214bcb6967c0419389774
-SHA256: 0cc96b0d7dc042aa2ba71ee4945421acbf96f59c4e298941536751a103606943
-Section: utils
+Maintainer: Redsonbabytiger <github.com/Redsonbabytiger>
+Depends: bash, coreutils
+Filename: pool/cros-minecraftv2.deb
+Size: 3180
+MD5sum: 6a8cc121a9ddbfd7e5cce45286570571
+SHA1: f4258131edda43e7fbd52398969a3713cdff27f1
+SHA256: 6b564b0d0e4c4bf4a0e69d6dfb5f6a6650bad687e426297be4ff80996db3e5a8
+Section: games
 Priority: optional
-Description: Automatically download and configure packages/files to play Minecraft on a Chromebook with Crostini enabled. This script helps users install required tools, optional CrOS packages, and Minecraft-related files interactively.
+Description: Cros Minecraft installer script
+ A terminal-based installer for Minecraft on ChromeOS Linux (Crostini).
+ This package installs the cros-minecraft command.
 
 Package: launcherhub
 Version: 1.2

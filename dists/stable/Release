@@ -4,9 +4,9 @@ Suite: stable
 Codename: stable
 Architectures: amd64
 Components: main
-Date: Mon, 12 Jan 2026 01:19:05 +0000
+Date: Mon, 12 Jan 2026 12:35:40 +0000
 
 SHA256:
- d2db469bbc215c56ff5a7a9a39be1959e61e15409b1f6d9ac7b685bb700f4141 172 Release
+ 776ab4809ad9352e5ef53be9085fafdbeab46130c7a7d6d70d34cfb456d67030 172 Release
  e2646e44aacc544336d9ca121caab43904c83dc0e486b77bc7b007cbfbc3c48a 1103 main/binary-amd64/Packages
- 90086dd6e788e2cc9c70887cb7985604dda926ceff3fb484609ebef41b01cd11 671 main/binary-amd64/Packages.gz
+ e3559202f480eaecad158eba4336101dc84187721ca1028126b67eb53f2e0b13 671 main/binary-amd64/Packages.gz

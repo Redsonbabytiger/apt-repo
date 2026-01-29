@@ -8,7 +8,7 @@ on:
     paths:
       - "pool/**"
   schedule:
-    - cron: "0 */12 * * *"   # fallback: run every 6 hours
+    - cron: "30 23 * * *"   # fallback: run every 6 hours
     
 jobs:
   update-apt-repo:

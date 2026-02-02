@@ -1,13 +1,13 @@
 Package: cros-minecraft
-Version: 2.0.0
-Architecture: all
+Version: 2.1.0
+Architecture: amd64
 Maintainer: Redsonbabytiger <github.com/Redsonbabytiger>
-Depends: bash, coreutils
-Filename: pool/cros-minecraftv2.deb
-Size: 3180
-MD5sum: 6a8cc121a9ddbfd7e5cce45286570571
-SHA1: f4258131edda43e7fbd52398969a3713cdff27f1
-SHA256: 6b564b0d0e4c4bf4a0e69d6dfb5f6a6650bad687e426297be4ff80996db3e5a8
+Depends: bash, coreutils, pipx, python3-venv
+Filename: pool/cros-minecraftv2.1.deb
+Size: 15772
+MD5sum: ed63cf2e43775b2856a2402079cb45b3
+SHA1: 14fc552ce2517fce467687ff50a055e993ec3769
+SHA256: b827c93581b20bee65395120b37a0c19e53e3824061898d052a95654f5d65958
 Section: games
 Priority: optional
 Description: Cros Minecraft installer script

@@ -1,18 +1,20 @@
 Package: cros-minecraft
-Version: 2.1.0
+Version: 3.0
 Architecture: amd64
 Maintainer: Redsonbabytiger <github.com/Redsonbabytiger>
 Depends: bash, coreutils, pipx, python3-venv
-Filename: pool/cros-minecraftv2.1.deb
-Size: 15772
-MD5sum: ed63cf2e43775b2856a2402079cb45b3
-SHA1: 14fc552ce2517fce467687ff50a055e993ec3769
-SHA256: b827c93581b20bee65395120b37a0c19e53e3824061898d052a95654f5d65958
+Filename: pool/cros-minecraftv3.deb
+Size: 16636
+MD5sum: f0b2cef941420982419a2a675b3dd479
+SHA1: 541c759ab1748810589c6e398a34ea9a8a260a7e
+SHA256: 834cb9342a33702169239425c79e4815cd9173280216764c1e00764c1bcc18d6
 Section: games
 Priority: optional
 Description: Cros Minecraft installer script
  A terminal-based installer for Minecraft on ChromeOS Linux (Crostini).
- This package installs the cros-minecraft command.
+ This package installs the cros-minecraft command,
+ as well as the sub-commands that the package uses.
+ Use the flag --help with the cros-minecraft command for more information.
 
 Package: launcherhub
 Version: 1.2

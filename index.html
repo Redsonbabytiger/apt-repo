@@ -1,0 +1,277 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>apt-repo — directory browser</title>
+  <style>
+    :root{
+      --bg:#0b1220; --card:#0f1724; --muted:#98a0b3; --accent:#60a5fa; --glass: rgba(255,255,255,0.03);
+      --radius:10px; --mono:ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", "Segoe UI Mono", "Courier New", monospace;
+    }
+    html,body{height:100%; margin:0; font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; background:linear-gradient(180deg,#041028 0%, #081325 50%); color:#e6eef8;}
+    .wrap{max-width:980px;margin:28px auto;padding:20px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); border-radius:16px;box-shadow:0 8px 30px rgba(2,6,23,0.6);}
+    header{display:flex;align-items:center;gap:16px;margin-bottom:18px}
+    h1{margin:0;font-size:20px}
+    .meta{color:var(--muted);font-size:13px}
+    .controls{margin-left:auto; display:flex; gap:8px; align-items:center;}
+    .btn{background:var(--glass); border:1px solid rgba(255,255,255,0.03); color:var(--accent); padding:6px 10px; border-radius:8px; font-size:13px; cursor:pointer;}
+    .btn.secondary{background:transparent; color:var(--muted); border:1px dashed rgba(255,255,255,0.03)}
+    .token{display:flex; gap:8px; align-items:center}
+    input[type="text"]{background:transparent;border:1px solid rgba(255,255,255,0.04);color:var(--muted);padding:6px 8px;border-radius:8px;font-size:13px}
+    nav.breadcrumb{display:flex;gap:6px;align-items:center;color:var(--muted);font-size:13px;margin-bottom:12px;flex-wrap:wrap}
+    .listing{background:rgba(0,0,0,0.25); border-radius:12px;padding:12px;}
+    .row{display:flex;align-items:center;justify-content:space-between;padding:8px 10px;border-radius:8px;}
+    .row:hover{background:rgba(255,255,255,0.02)}
+    .left{display:flex;gap:12px;align-items:center;min-width:0}
+    .icon{width:36px;height:36px;border-radius:8px;background:linear-gradient(180deg,rgba(255,255,255,0.02),transparent);display:flex;align-items:center;justify-content:center;color:var(--muted);font-weight:700}
+    .name{font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:520px}
+    .meta-sm{font-size:12px;color:var(--muted)}
+    .actions{display:flex;gap:8px}
+    a.link{color:inherit;text-decoration:none}
+    .empty{padding:20px;text-align:center;color:var(--muted)}
+    footer{margin-top:14px;color:var(--muted);font-size:13px}
+    @media (max-width:640px){ .left .name{max-width:200px} .controls{display:none} }
+  </style>
+</head>
+<body>
+  <div class="wrap" role="main">
+    <header>
+      <div>
+        <h1>apt-repo — repository browser</h1>
+        <div class="meta">Repository: <strong id="repo-id">Redsonbabytiger/apt-repo</strong></div>
+      </div>
+
+      <div class="controls" aria-hidden="false">
+        <div class="token" title="Optional: use a personal access token to raise GitHub API rate limits">
+          <input id="token" type="text" placeholder="Optional GitHub token (no scopes required)" aria-label="GitHub token" />
+          <button id="applyToken" class="btn">Apply</button>
+        </div>
+        <button id="homeBtn" class="btn secondary">Home</button>
+      </div>
+    </header>
+
+    <nav class="breadcrumb" aria-label="Breadcrumb" id="breadcrumb"></nav>
+
+    <section class="listing" id="listing" aria-live="polite">
+      <div class="empty" id="empty">Loading repository contents…</div>
+    </section>
+
+    <footer>
+      This page lists files from the GitHub repository using the GitHub Contents API. Files link to the raw download URL. If content fails to load, you can optionally provide a GitHub token to increase API rate limits.
+    </footer>
+  </div>
+
+  <script>
+    // Configuration: set owner and repo
+    const owner = 'Redsonbabytiger';
+    const repo = 'apt-repo';
+
+    // DOM refs
+    const listingEl = document.getElementById('listing');
+    const emptyEl = document.getElementById('empty');
+    const breadcrumbEl = document.getElementById('breadcrumb');
+    const repoIdEl = document.getElementById('repo-id');
+    const tokenInput = document.getElementById('token');
+    const applyTokenBtn = document.getElementById('applyToken');
+    const homeBtn = document.getElementById('homeBtn');
+
+    repoIdEl.textContent = owner + '/' + repo;
+
+    // Optional token (keeps in memory only)
+    let authToken = '';
+
+    applyTokenBtn.addEventListener('click', () => {
+      authToken = tokenInput.value.trim();
+      showNotice('Token applied. Reloading content…');
+      loadPath(getCurrentPath());
+    });
+
+    homeBtn.addEventListener('click', () => {
+      navigateTo('');
+    });
+
+    // Parse path from URL query
+    function getCurrentPath() {
+      const p = new URLSearchParams(location.search).get('path') || '';
+      // normalize: remove leading slash
+      return p.replace(/^\/+/, '');
+    }
+
+    // Build API headers
+    function apiHeaders() {
+      const headers = { 'Accept': 'application/vnd.github.v3+json' };
+      if (authToken) headers['Authorization'] = 'token ' + authToken;
+      return headers;
+    }
+
+    async function fetchContents(path) {
+      const api = `https://api.github.com/repos/${owner}/${repo}/contents/${encodeURIComponent(path)}`;
+      const res = await fetch(api, { headers: apiHeaders() });
+      if (!res.ok) {
+        const text = await res.text();
+        throw new Error(`GitHub API error ${res.status}: ${res.statusText}\n${text}`);
+      }
+      return res.json();
+    }
+
+    function niceBytes(n) {
+      if (n == null) return '';
+      if (n < 1024) return n + ' B';
+      const units = ['KB','MB','GB','TB'];
+      let i = -1;
+      do { n = n / 1024; i++; } while (n >= 1024 && i < units.length-1);
+      return n.toFixed(1) + ' ' + units[i];
+    }
+
+    function iconFor(item) {
+      if (item.type === 'dir') return '📂';
+      const ext = (item.name.split('.').pop() || '').toLowerCase();
+      const map = {
+        'deb':'📦','gz':'🗜️','tar':'🗜️','xz':'🗜️','zip':'🗜️',
+        'asc':'🔐','gpg':'🔐','sig':'🔐',
+        'md':'📄','txt':'📄','html':'🌐','json':'🔢','yml':'⚙️','yaml':'⚙️','sh':'🐚',
+        'png':'🖼️','jpg':'🖼️','jpeg':'🖼️','svg':'🖼️'
+      };
+      return map[ext] || '📄';
+    }
+
+    function renderBreadcrumb(path) {
+      breadcrumbEl.innerHTML = '';
+      const parts = path ? path.split('/').filter(Boolean) : [];
+      const rootLink = document.createElement('a');
+      rootLink.href = '?path=';
+      rootLink.className = 'link';
+      rootLink.textContent = owner + '/' + repo;
+      rootLink.addEventListener('click', ev => { ev.preventDefault(); navigateTo(''); });
+      breadcrumbEl.appendChild(rootLink);
+
+      let accum = '';
+      for (const p of parts) {
+        const sep = document.createElement('span'); sep.textContent = ' / '; sep.style.color = 'var(--muted)';
+        breadcrumbEl.appendChild(sep);
+        accum = accum ? accum + '/' + p : p;
+        const a = document.createElement('a');
+        a.href = '?path=' + encodeURIComponent(accum);
+        a.className = 'link';
+        a.textContent = p;
+        a.addEventListener('click', ev => { ev.preventDefault(); navigateTo(accum); });
+        breadcrumbEl.appendChild(a);
+      }
+    }
+
+    function showNotice(msg, timeout = 3000) {
+      emptyEl.textContent = msg;
+      emptyEl.style.display = '';
+      setTimeout(() => { emptyEl.textContent = ''; emptyEl.style.display = 'none'; }, timeout);
+    }
+
+    function renderList(items, path) {
+      listingEl.innerHTML = '';
+      if (!Array.isArray(items) || items.length === 0) {
+        listingEl.innerHTML = `<div class="empty">Folder is empty</div>`;
+        return;
+      }
+
+      // Sort: directories first, then files, both alphabetically
+      items.sort((a,b) => {
+        if (a.type === b.type) return a.name.localeCompare(b.name, undefined, {sensitivity:'base'});
+        return a.type === 'dir' ? -1 : 1;
+      });
+
+      for (const item of items) {
+        const row = document.createElement('div');
+        row.className = 'row';
+        const left = document.createElement('div'); left.className = 'left';
+        const icon = document.createElement('div'); icon.className = 'icon'; icon.textContent = iconFor(item);
+        const nameWrap = document.createElement('div');
+        const name = document.createElement('div'); name.className = 'name'; name.textContent = item.name;
+        const meta = document.createElement('div'); meta.className = 'meta-sm';
+        meta.textContent = item.type === 'dir' ? 'Directory' : `${niceBytes(item.size)} • ${item.sha ? item.sha.slice(0,8) : ''}`;
+        nameWrap.appendChild(name); nameWrap.appendChild(meta);
+
+        left.appendChild(icon); left.appendChild(nameWrap);
+
+        const actions = document.createElement('div'); actions.className = 'actions';
+        if (item.type === 'dir') {
+          const openBtn = document.createElement('button'); openBtn.className = 'btn secondary'; openBtn.textContent = 'Open';
+          openBtn.addEventListener('click', () => navigateTo((path ? path + '/' : '') + item.name));
+          actions.appendChild(openBtn);
+        } else {
+          // file: create download and preview links
+          const downloadA = document.createElement('a');
+          downloadA.className = 'btn';
+          downloadA.textContent = 'Download';
+          downloadA.href = item.download_url || item.html_url;
+          downloadA.target = '_blank';
+          downloadA.rel = 'noopener noreferrer';
+          // set download attribute to suggest browser to save
+          downloadA.setAttribute('download', item.name);
+          actions.appendChild(downloadA);
+
+          const preview = document.createElement('button');
+          preview.className = 'btn secondary';
+          preview.textContent = 'Preview';
+          preview.addEventListener('click', () => {
+            // open raw content in new tab
+            const raw = item.download_url || item.html_url;
+            window.open(raw, '_blank', 'noopener');
+          });
+          actions.appendChild(preview);
+        }
+
+        row.appendChild(left);
+        row.appendChild(actions);
+        listingEl.appendChild(row);
+      }
+    }
+
+    async function loadPath(path) {
+      emptyEl.style.display = '';
+      emptyEl.textContent = 'Loading…';
+      renderBreadcrumb(path);
+      try {
+        const data = await fetchContents(path);
+        // If path is a file (rare), the API returns an object, not an array.
+        if (!Array.isArray(data)) {
+          // single file: show the file as downloadable item
+          renderList([data], path === '' ? '' : path.substring(0, path.lastIndexOf('/') + 1));
+          emptyEl.style.display = 'none';
+          return;
+        }
+        renderList(data, path);
+        emptyEl.style.display = 'none';
+      } catch (err) {
+        console.error(err);
+        listingEl.innerHTML = `<div class="empty">Failed to load contents: ${escapeHtml(err.message)}</div>`;
+        emptyEl.style.display = 'none';
+      }
+    }
+
+    // Navigation helpers
+    function navigateTo(path) {
+      const url = new URL(location.href);
+      if (path) url.searchParams.set('path', path);
+      else url.searchParams.delete('path');
+      history.pushState({ path }, '', url);
+      loadPath(path);
+    }
+
+    // Escape for innerHTML usage (very small use)
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"']/g, (m) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+    }
+
+    // Handle back/forward navigation
+    window.addEventListener('popstate', (ev) => {
+      loadPath(getCurrentPath());
+    });
+
+    // Initial load
+    (function init() {
+      // If the repo is private or if CORS is blocked by GitHub (shouldn't be), user can provide a token.
+      loadPath(getCurrentPath());
+    })();
+  </script>
+</body>
+</html>
